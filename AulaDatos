@@ -13,7 +13,7 @@ public class AulaDatos {
 	private String password;
 	private Connection con;
 
-	public AulaDatos(String cadenaConexión, String usuario, String password) {
+	public AulaDatos(String cadenaConexion, String usuario, String password) {
 		super();
 		this.cadenaConexion = cadenaConexion;
 		this.usuario = usuario;
