@@ -1,0 +1,121 @@
+package BDClases;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
+public class AulaDatos {
+	private String cadenaConexion;
+	private String usuario;
+	private String password;
+	private Connection con;
+
+	public AulaDatos(String cadenaConexión, String usuario, String password) {
+		super();
+		this.cadenaConexion = cadenaConexion;
+		this.usuario = usuario;
+		this.password = password;
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			con = DriverManager.getConnection(cadenaConexion, usuario, password);
+		}catch (Exception ex){
+			System.out.println(ex.getMessage());}
+	}
+
+	public boolean addAula(String nombre, int capacidad) {
+		if (con == null) {
+			System.out.println("no se ha podido conectar a la Base de Datos");
+			return false;}
+		try {
+			PreparedStatement ps = con.prepareStatement("insert into aula (nombre,capacidad) values(?,?)");
+			ps.setString(1, nombre);
+			ps.setInt(2, capacidad);
+			int filasAfectadas = ps.executeUpdate();
+			return filasAfectadas == 1;}
+		catch (Exception ex){
+			System.out.println("Error al añadir el aula");
+			return false;
+
+		}
+	}
+
+	public String getAula(int id) {
+		if (con == null) {
+			System.out.println("no se ha podido obtener el aula");
+			return null;
+		}
+		try {
+			PreparedStatement ps = con.prepareStatement("select nombre from aula where id=?");
+			ps.setInt(1,id);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				return rs.getString("nombre");
+			}System.out.println("No existe ningún aula con el id " + id);
+			return null;
+
+		}catch(Exception ex) {
+			System.out.println("Error al consultar el aula");
+			return null;
+		}
+	}
+
+	public List<String>getAulas(int capacidad){
+List<String>Aulas=new ArrayList<>();
+
+if(con==null){
+	System.out.println("No se pueden obtener las aulas");
+	return null;
+}
+		
+	try{
+		PreparedStatement ps = con.prepareStatement("SELECT nombre FROM aula WHERE capacidad >= ?");
+		ps.setInt(1, capacidad);
+		ResultSet rs = ps.executeQuery();
+		
+		while(rs.next()){
+Aulas.add(rs.getString("nombre"));
+
+}return Aulas;
+}catch(Exception ex) {
+System.out.println("No se pueden obtener las aulas");
+return null;
+}
+	}
+
+	public boolean changeAula(int id, String nombre, int capacidad) {
+		if (con == null) {
+			System.out.println("No se puede cambiar el aula.");
+			return false;
+		}
+		try {
+			PreparedStatement ps = con.prepareStatement("UPDATE aula SET nombre = ?, capacidad = ? WHERE id = ?");
+			ps.setString(1, nombre);
+			ps.setInt(2, capacidad);
+			ps.setInt(3, id);
+			int filasAfectadas = ps.executeUpdate();
+			return filasAfectadas > 0;
+		} catch (Exception ex) {
+			System.out.println("No existe ningún aula con el id " + id);
+			return false;
+		}
+	}
+
+public static void main(String[] args) {
+	
+
+AulaDatos miAula=new AulaDatos("jdbc:mysql://mysql-trifulcas.alwaysdata.net:3306/trifulcas_code",
+"trifulcas_code", "TrifulcasForever");
+
+System.out.println(miAula.addAula("Música",25));
+System.out.println(miAula.getAula(1));
+List<String>Aulas= miAula.getAulas(46);
+System.out.println(Aulas);
+System.out.println(miAula.changeAula(1,"Composición",20));
+   }
+
+}
+
+    
